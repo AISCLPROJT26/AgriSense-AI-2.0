@@ -1,0 +1,103 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card card-custom p-4 bg-white">
+            <h3 class="fw-bold mb-1" style="color: #1b4332;">
+                <i class="fa-solid fa-leaf text-success me-2"></i>AI Leaf Disease Scanner
+            </h3>
+            <p class="text-muted small mb-4">Upload a clear photo of a crop leaf to detect fungal blight, rust, or nutrient chlorosis.</p>
+
+            <form id="diseaseForm" enctype="multipart/form-data">
+                <div class="mb-3">
+                    <label for="leafInput" class="form-label fw-semibold">Select Leaf Image (JPG / PNG)</label>
+                    <input class="form-control" type="file" id="leafInput" name="leaf_image" accept="image/*" required>
+                </div>
+
+                <!-- Image Preview -->
+                <div id="previewContainer" class="text-center my-3 d-none">
+                    <img id="leafPreview" src="#" alt="Leaf Preview" class="img-fluid rounded shadow-sm" style="max-height: 240px;">
+                </div>
+
+                <button type="submit" id="scanBtn" class="btn btn-success w-100 py-2 fw-semibold rounded-pill">
+                    <i class="fa-solid fa-microscope me-2"></i>Analyze Leaf Health
+                </button>
+            </form>
+
+            <!-- Scan Result Card -->
+            <div id="scanResultBox" class="mt-4 p-4 rounded-3 border d-none">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h4 class="fw-bold mb-0" id="resDiseaseName" style="color: #1b4332;">--</h4>
+                    <span class="badge bg-success fs-6" id="resConfidence">--%</span>
+                </div>
+                <p class="mb-2 small"><strong>Severity Level:</strong> <span id="resSeverity">--</span></p>
+                <div class="alert alert-light border mb-0 small">
+                    <strong><i class="fa-solid fa-kit-medical text-success me-1"></i> Recommended Action:</strong>
+                    <p class="mb-0 mt-1" id="resTreatment">--</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const leafInput = document.getElementById("leafInput");
+    const previewContainer = document.getElementById("previewContainer");
+    const leafPreview = document.getElementById("leafPreview");
+    const diseaseForm = document.getElementById("diseaseForm");
+    const scanBtn = document.getElementById("scanBtn");
+    const resultBox = document.getElementById("scanResultBox");
+
+    // Show instant preview when file is chosen
+    leafInput.addEventListener("change", function () {
+        const file = this.files[0];
+        if (file) {
+            leafPreview.src = URL.createObjectURL(file);
+            previewContainer.classList.remove("d-none");
+            resultBox.classList.add("d-none");
+        }
+    });
+
+    // Submit image to Flask backend
+    diseaseForm.addEventListener("submit", async function (e) {
+        e.preventDefault();
+        if (!leafInput.files.length) return;
+
+        scanBtn.disabled = true;
+        scanBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin me-2"></i>Scanning Leaf Pixels...';
+
+        const formData = new FormData();
+        formData.append("leaf_image", leafInput.files[0]);
+
+        try {
+            const response = await fetch("/api/predict-disease", {
+                method: "POST",
+                body: formData
+            });
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+            } else {
+                document.getElementById("resDiseaseName").innerText = data.disease;
+                document.getElementById("resConfidence").innerText = data.confidence + "% Confidence";
+                document.getElementById("resSeverity").innerText = data.severity;
+                document.getElementById("resTreatment").innerText = data.treatment;
+
+                const badge = document.getElementById("resConfidence");
+                badge.className = data.severity === "None" ? "badge bg-success fs-6" : (data.severity === "High" ? "badge bg-danger fs-6" : "badge bg-warning text-dark fs-6");
+
+                resultBox.classList.remove("d-none");
+            }
+        } catch (err) {
+            alert("Failed to connect to the disease scan endpoint.");
+        } finally {
+            scanBtn.disabled = false;
+            scanBtn.innerHTML = '<i class="fa-solid fa-microscope me-2"></i>Analyze Leaf Health';
+        }
+    });
+});
+</script>
+{% endblock %}

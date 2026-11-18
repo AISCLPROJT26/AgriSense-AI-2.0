@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8 col-lg-6">
+        <div class="card card-custom p-4 text-center bg-white">
+            <h3 class="fw-bold mb-3" style="color: #1b4332;">
+                <i class="fa-solid fa-cloud-sun-rain me-2"></i>Live Weather Forecast
+            </h3>
+            
+            <form method="POST" class="d-flex mb-4">
+                <input type="text" name="city" class="form-control me-2 bg-light" placeholder="Enter City (e.g. Meerut)" value="{{ city }}" required>
+                <button type="submit" class="btn btn-success-custom px-4">Search</button>
+            </form>
+
+            {% if error %}
+                <div class="alert alert-danger" role="alert">
+                    <i class="fa-solid fa-circle-exclamation me-2"></i>{{ error }}
+                </div>
+            {% endif %}
+
+            {% if weather %}
+                <div class="p-4 border rounded-4 bg-light shadow-sm">
+                    <h4 class="fw-bold">{{ weather.city }}, {{ weather.country }}</h4>
+                    <h1 class="display-3 fw-bold my-2 text-success">{{ weather.temperature }}°C</h1>
+                    <p class="text-capitalize fs-5 text-muted mb-3">{{ weather.description }}</p>
+                    
+                    <div class="row pt-3 border-top">
+                        <div class="col-4">
+                            <small class="text-muted d-block">Feels Like</small>
+                            <strong>{{ weather.feels_like }}°C</strong>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block">Humidity</small>
+                            <strong>{{ weather.humidity }}%</strong>
+                        </div>
+                        <div class="col-4">
+                            <small class="text-muted d-block">Wind Speed</small>
+                            <strong>{{ weather.wind }} km/h</strong>
+                        </div>
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

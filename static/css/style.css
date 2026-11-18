@@ -1,0 +1,141 @@
+/* ==========================================
+   AGRISENSE AI 2.0 - MASTER STYLESHEET
+   ========================================== */
+
+:root {
+    --primary-green: #1b4332;
+    --accent-green: #2d6a4f;
+    --light-green: #d8f3dc;
+    --light-bg: #f8f9fa;
+    --dark-text: #2b2d42;
+    --muted-text: #6c757d;
+}
+
+/* Base Layout & Typography */
+body {
+    background-color: var(--light-bg);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    color: var(--dark-text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* Navigation Customization */
+.navbar-custom {
+    background-color: var(--primary-green);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-size: 1.35rem;
+    letter-spacing: -0.3px;
+}
+
+.navbar-dark .navbar-nav .nav-link {
+    color: rgba(255, 255, 255, 0.85);
+    font-weight: 500;
+    transition: color 0.2s ease-in-out;
+}
+
+.navbar-dark .navbar-nav .nav-link:hover {
+    color: #ffffff;
+}
+
+/* Cards & UI Panels */
+.card-custom {
+    border: none;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card-custom:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+/* Buttons */
+.btn-success-custom {
+    background-color: var(--accent-green);
+    border: none;
+    color: #ffffff;
+    border-radius: 50rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.btn-success-custom:hover {
+    background-color: var(--primary-green);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(27, 67, 50, 0.3);
+}
+
+/* Metric Display Icons */
+.metric-icon {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 16px;
+}
+
+/* Form Inputs & Controls */
+.form-control, .form-select {
+    border-radius: 10px;
+    border: 1px solid #e2e8f0;
+    padding: 0.6rem 0.9rem;
+    font-size: 0.95rem;
+}
+
+.form-control:focus, .form-select:focus {
+    border-color: var(--accent-green);
+    box-shadow: 0 0 0 0.25rem rgba(45, 106, 79, 0.15);
+}
+
+/* Sidebar Customization */
+.sidebar .nav-link {
+    font-size: 0.9rem;
+    font-weight: 500;
+    color: var(--muted-text);
+    padding: 0.65rem 1rem;
+    border-radius: 10px;
+    transition: all 0.2s ease;
+}
+
+.sidebar .nav-link:hover {
+    background-color: #e9ecef;
+    color: var(--accent-green) !important;
+}
+
+.sidebar .nav-link.active {
+    background-color: var(--accent-green) !important;
+    color: #ffffff !important;
+    box-shadow: 0 4px 10px rgba(45, 106, 79, 0.25);
+}
+
+/* Tables */
+.table {
+    vertical-align: middle;
+}
+
+.table thead th {
+    font-weight: 600;
+    color: var(--muted-text);
+    border-bottom: 2px solid #e9ecef;
+}
+
+/* Utilities & Map Containers */
+.cursor-pointer {
+    cursor: pointer;
+}
+
+.leaflet-container {
+    font-family: inherit;
+    border-radius: 12px;
+}
