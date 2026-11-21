@@ -5,7 +5,6 @@ import tempfile
 from pathlib import Path
 from flask import Flask, render_template, request, redirect, url_for, session, jsonify
 from werkzeug.security import generate_password_hash, check_password_hash
-from authlib.integrations.flask_client import OAuth
 from dotenv import load_dotenv
 from database import init_db
 from disease_predict import analyze_leaf_image
@@ -16,16 +15,6 @@ app.secret_key = os.getenv("FLASK_SECRET_KEY", "agrisense_secret_key_2026")
 
 # Initialize SQLite Database on startup
 init_db()
-
-# --- GOOGLE OAUTH SETUP ---
-oauth = OAuth(app)
-google = oauth.register(
-    name='google',
-    client_id=os.getenv('GOOGLE_CLIENT_ID', 'YOUR_GOOGLE_CLIENT_ID'),
-    client_secret=os.getenv('GOOGLE_CLIENT_SECRET', 'YOUR_GOOGLE_CLIENT_SECRET'),
-    server_metadata_url='https://accounts.google.com/.well-known/openid-configuration',
-    client_kwargs={'scope': 'openid email profile'}
-)
 
 # --- AI MODEL LOADER ---
 def load_crop_model():
@@ -70,10 +59,10 @@ def crops():
     if request.method == "POST":
         try:
             values = [
-                float(request.form.get("N", 50)),
-                float(request.form.get("P", 50)),
-                float(request.form.get("K", 50)),
-                float(request.form.get("temperature", 28)),
+                float(request.form.get("n", 50)),
+                float(request.form.get("p", 50)),
+                float(request.form.get("k", 50)),
+                float(request.form.get("temp", 28)),
                 float(request.form.get("humidity", 70)),
                 float(request.form.get("ph", 6.5)),
                 float(request.form.get("rainfall", 150)),
@@ -146,40 +135,6 @@ def logout():
     session.clear()
     return redirect(url_for("index"))
 
-# --- GOOGLE OAUTH ROUTES ---
-
-@app.route("/login/google")
-def google_login():
-    redirect_uri = url_for('google_authorize', _external=True)
-    return google.authorize_redirect(redirect_uri)
-
-@app.route("/authorize/google")
-def google_authorize():
-    try:
-        google.authorize_access_token()
-        resp = google.get('https://www.googleapis.com/oauth2/v3/userinfo')
-        user_info = resp.json()
-        
-        email = user_info.get("email")
-        name = user_info.get("name")
-
-        conn = sqlite3.connect("agrisense.db")
-        conn.row_factory = sqlite3.Row
-        cursor = conn.cursor()
-        
-        user = cursor.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-        
-        if not user:
-            cursor.execute("INSERT INTO users (name, email, password) VALUES (?, ?, ?)", (name, email, "GOOGLE_AUTH_USER"))
-            conn.commit()
-            user = cursor.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
-        
-        conn.close()
-        session["user_id"] = user["id"]
-        return redirect(url_for("dashboard"))
-    except Exception:
-        return redirect(url_for("login"))
-
 # --- API ENDPOINTS ---
 
 @app.route("/api/market-prices")
@@ -233,7 +188,7 @@ def recommend_crop():
         return jsonify({
             "crop": crop,
             "confidence": confidence,
-            "tips": f"Optimal soil parameters detected for growing {crop}. Ensure adequate drainage.",
+            "tips": f"Optimal soil parameters detected for growing {crop}. Ensure adequate drainage and proper NPK maintenance.",
         })
     except (TypeError, ValueError) as e:
         return jsonify({"error": str(e)}), 400
